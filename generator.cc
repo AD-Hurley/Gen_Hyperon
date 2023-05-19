@@ -16,26 +16,16 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 	G4String particleName="lambda";
 	G4ParticleDefinition *particle = particleTable->FindParticle("lambda");
 	
-	/*
-	G4cout << "Old Decay Table is:" << G4endl;
-	G4DecayTable *lambdaDecayTable = particle->GetDecayTable();
-	lambdaDecayTable->DumpInfo();
-	*/
-	
+	//--------------------------- Force the Lambda decay to pi-p only ---------------------------
 	G4DecayTable *ppiOnlyTable = new G4DecayTable();
 	G4PhaseSpaceDecayChannel *ppimDecayChannel = new G4PhaseSpaceDecayChannel(particleName, 1.0, 2, "proton", "pi-");
 	ppiOnlyTable->Insert(ppimDecayChannel);
 	particle->SetDecayTable(ppiOnlyTable);
 	
-	/*
-	G4cout << "New Decay Table is:" << G4endl;
-	lambdaDecayTable = particle->GetDecayTable();
-	lambdaDecayTable->DumpInfo();
-	*/
-	
-	G4double z0 = (0. + 125*(G4UniformRand()-0.5))*cm;
-	//z0 = 125./2.*cm;
-	G4cout << "z0 = " << z0 << G4endl;
+	//--------------------------- Initialize particle gun ---------------------------------------
+	//G4double z0 = (0. + 125*(G4UniformRand()-0.5))*cm;
+	G4double z0 = 0.*cm;
+	//G4cout << "z0 = " << z0 << G4endl;
 	
 	G4ThreeVector pos(0., 0., z0);
 	G4ThreeVector mom(0., 0., 1.);

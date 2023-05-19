@@ -14,9 +14,9 @@ void MyRunAction::BeginOfRunAction(const G4Run*)
 	
 	man->CreateNtuple("Hits","Hits");
 	man->CreateNtupleIColumn("fEvent");
-	man->CreateNtupleDColumn("fx");
-	man->CreateNtupleDColumn("fy");
-	man->CreateNtupleDColumn("fz");
+	man->CreateNtupleDColumn("vx");
+	man->CreateNtupleDColumn("vy");
+	man->CreateNtupleDColumn("vz");
 	man->FinishNtuple(0);
 	
 }

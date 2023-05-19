@@ -9,6 +9,31 @@ MySensitiveDetector::~MySensitiveDetector()
 G4bool MySensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist)
 {
 	
+	G4Track *track = aStep->GetTrack();
+	
+	track->SetTrackStatus(fStopAndKill);
+	
+	G4StepPoint *preStepPoint = aStep->GetPreStepPoint();
+	G4StepPoint *postStepPoint = aStep->GetPostStepPoint();
+	
+	G4int PID = track->GetParticleDefinition()->GetPDGEncoding();
+	G4ThreeVector vertexTrack = track->GetVertexPosition();
+	
+	//G4cout << "track PID = " << PID << G4endl;
+	//G4cout << "Track Vertex = " << vertexTrack << G4endl;
+	
+	G4int evt = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
+	
+	G4AnalysisManager *man = G4AnalysisManager::Instance();
+	if (PID == -211)
+	{
+		man->FillNtupleIColumn(0, evt);
+		man->FillNtupleDColumn(1, vertexTrack[0]);
+		man->FillNtupleDColumn(2, vertexTrack[1]);
+		man->FillNtupleDColumn(3, vertexTrack[2]);
+		man->AddNtupleRow(0);
+	}
+	
 	/*
 	G4Track *track = aStep->GetTrack();
 	
