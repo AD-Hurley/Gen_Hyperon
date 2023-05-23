@@ -21,7 +21,7 @@ G4ThreeVector MyPrimaryGenerator::GetHyperonVertex()
 	while (!generated)
 	{
 		z0 = (0. + 125*(G4UniformRand()-0.5)) *cm;
-		z = 1-G4Exp(-0.009519*(z0+625));
+		z = 0.5 + 0.0008*z0;
 		if (1.1 * G4UniformRand() < z)
 		{
 			vertex[2] = z0;
@@ -36,8 +36,13 @@ G4ThreeVector MyPrimaryGenerator::GetHyperonVertex()
 
 G4double MyPrimaryGenerator::GetHyperonEg()
 {
-	G4double Egamma = 3.*GeV;
+	G4double Egamma = 3.*Gev;
+	G4double Egamma0; 
 	
+	Egamma0 = (11000.0-915.0)*(G4UniformRand()) + 915.0 *MeV;
+	/*
+	Egamma =  (.000142697 - 0.0000000188345*Egamma0 + .000000000000754237*Egamma0*Egamma0 -6.88516*G4Exp(-.00108665*Egamma0)) * (1.0/3.39847) * ((.950*G4Exp(-.5*( ((Egamma0-1.07)/.0800) * ((Egamma0-1.07)/.0800) ) ) ) + (2.00*G4Exp(-.5*( ((Egamma0-1.35)/.244) * ((Egamma0-1.35)/.244) ) ) ) + (.00274 + -1.06*Egamma0 + .887*Egamma0*Egamma0) + (2.19 * G4Exp(-1.05*Egamma0))*((x>=1.8 && x < 2.477)?1:0) + (.931 * G4Exp(-.546*Egamma0))*((x>=2.477)?1:0) );
+	*/
 
 
 	return Egamma;
