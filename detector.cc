@@ -25,7 +25,7 @@ G4bool MySensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhis
 	G4int evt = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
 	
 	G4AnalysisManager *man = G4AnalysisManager::Instance();
-	if (PID == -211)
+	if (PID == 3122)
 	{
 		man->FillNtupleIColumn(0, evt);
 		man->FillNtupleDColumn(1, vertexTrack[0]);

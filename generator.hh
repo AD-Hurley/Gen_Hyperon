@@ -9,12 +9,18 @@
 #include "G4DecayTable.hh"
 #include "G4PhaseSpaceDecayChannel.hh"
 #include "Randomize.hh"
+#include "G4Exp.hh"
 
 class MyPrimaryGenerator : public G4VUserPrimaryGeneratorAction
 {
 public:
 	MyPrimaryGenerator();
 	~MyPrimaryGenerator();
+	
+	virtual G4ThreeVector GetHyperonVertex();
+	virtual G4double GetHyperonEg();
+	virtual G4ThreeVector GetHyperonAngle();
+	virtual G4double GetHyperonMom();
 	
 	virtual void GeneratePrimaries(G4Event*);
 	
