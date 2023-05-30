@@ -20,7 +20,7 @@ public:
 	virtual G4ThreeVector GetHyperonVertex();
 	virtual G4double GetPhotonE();
 	virtual G4ThreeVector GetHyperonAngle();
-	virtual G4double GetHyperonMom();
+	virtual G4double GetHyperonMom(G4double);
 	
 	virtual void GeneratePrimaries(G4Event*);
 	
