@@ -18,7 +18,7 @@ public:
 	~MyPrimaryGenerator();
 	
 	virtual G4ThreeVector GetHyperonVertex();
-	virtual G4double GetHyperonEg();
+	virtual G4double GetPhotonE();
 	virtual G4ThreeVector GetHyperonAngle();
 	virtual G4double GetHyperonMom();
 	

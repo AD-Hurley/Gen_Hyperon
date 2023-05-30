@@ -14,10 +14,11 @@ MyPrimaryGenerator::~MyPrimaryGenerator()
 G4ThreeVector MyPrimaryGenerator::GetHyperonVertex()
 {
 	G4ThreeVector vertex(0., 0., 0.);
-	bool generated = false;
-	
+
 	G4double z;
 	G4double z0;
+	
+	bool generated = false;
 	while (!generated)
 	{
 		z0 = (0. + 125*(G4UniformRand()-0.5)) *cm;
@@ -34,18 +35,33 @@ G4ThreeVector MyPrimaryGenerator::GetHyperonVertex()
 	return vertex;
 }
 
-G4double MyPrimaryGenerator::GetHyperonEg()
+G4double MyPrimaryGenerator::GetPhotonE()
 {
-	G4double Egamma = 3.*Gev;
-	G4double Egamma0; 
+	G4double EbremSim, dsigdE, gamEnergy, gamEnergy_prob; 
+	G4double EfnMax = 0.2518; //maximum value of the product of the imperical fits to normalized Egamma brem dist (simulated) and 1/sigma*dsigma/dE (fit to data) 
 	
-	Egamma0 = (11000.0-915.0)*(G4UniformRand()) + 915.0 *MeV;
-	/*
-	Egamma =  (.000142697 - 0.0000000188345*Egamma0 + .000000000000754237*Egamma0*Egamma0 -6.88516*G4Exp(-.00108665*Egamma0)) * (1.0/3.39847) * ((.950*G4Exp(-.5*( ((Egamma0-1.07)/.0800) * ((Egamma0-1.07)/.0800) ) ) ) + (2.00*G4Exp(-.5*( ((Egamma0-1.35)/.244) * ((Egamma0-1.35)/.244) ) ) ) + (.00274 + -1.06*Egamma0 + .887*Egamma0*Egamma0) + (2.19 * G4Exp(-1.05*Egamma0))*((x>=1.8 && x < 2.477)?1:0) + (.931 * G4Exp(-.546*Egamma0))*((x>=2.477)?1:0) );
-	*/
-
-
-	return Egamma;
+	
+	bool generated = false;
+	while (!generated)
+	{
+	
+		gamEnergy = (11.0-.915)*(G4UniformRand()) + .915;
+		//G4cout << "gamEnergy " << gamEnergy << " GeV" << G4endl;
+	
+		EbremSim = (.142697 - 0.0188345*gamEnergy + 0.000754237*gamEnergy*gamEnergy + G4Exp(0.0225982-1.08665*gamEnergy)); //Photon energy spectrum from e- on lH2 geant4 sim
+		dsigdE = (((.950*G4Exp(-.5*( ((gamEnergy-1.07)/.0800) * ((gamEnergy-1.07)/.0800) ) ) ) + (2.00*G4Exp(-.5*( ((gamEnergy-1.35)/.244) * ((gamEnergy-1.35)/.244) ) ) ) + (.00274 + -1.06*gamEnergy + .887*gamEnergy*gamEnergy) )*((gamEnergy<1.8)?1:0)+ (G4Exp(2.19-1.05*gamEnergy))*((gamEnergy>=1.8 && gamEnergy < 2.477)?1:0) + (G4Exp(.931-.546*gamEnergy))*((gamEnergy>=2.477)?1:0) ); //fit to dsigma/dE from CLAS 2006 data 
+	
+		gamEnergy_prob =  EbremSim * ((1.0/3.39847) * dsigdE); //product of the imperical fits to normalized Egamma brem dist (simulated) and 1/sigma*dsigma/dE (fit to data)
+		
+		
+		//G4cout << "Egamma weight " << gamEnergy_prob << " GeV" << G4endl;
+		if (1.2 * EfnMax * G4UniformRand() < gamEnergy_prob)
+			generated = true;
+	
+	}
+	
+	//gamEnergy_prob = 3.*GeV;
+	return gamEnergy * GeV;
 }
 
 G4ThreeVector MyPrimaryGenerator::GetHyperonAngle()
@@ -89,7 +105,8 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 	
 	G4ThreeVector pos = GetHyperonVertex();
 	G4ThreeVector ang = GetHyperonAngle();
-	G4double mom = GetHyperonMom();
+	//G4double mom = GetHyperonMom();
+	G4double mom = GetPhotonE();
 	
 	fParticleGun->SetParticlePosition(pos);
 	fParticleGun->SetParticleMomentumDirection(ang);

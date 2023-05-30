@@ -11,13 +11,14 @@ G4bool MySensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhis
 	
 	G4Track *track = aStep->GetTrack();
 	
-	//track->SetTrackStatus(fStopAndKill);
+	track->SetTrackStatus(fStopAndKill);
 	
 	G4StepPoint *preStepPoint = aStep->GetPreStepPoint();
 	G4StepPoint *postStepPoint = aStep->GetPostStepPoint();
 	
 	G4int PID = track->GetParticleDefinition()->GetPDGEncoding();
 	G4ThreeVector vertexTrack = track->GetVertexPosition();
+	G4ThreeVector momentumTrack = track->GetMomentum();
 	
 	//G4cout << "track PID = " << PID << G4endl;
 	//G4cout << "Track Vertex = " << vertexTrack << G4endl;
@@ -26,14 +27,17 @@ G4bool MySensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhis
 	
 	G4AnalysisManager *man = G4AnalysisManager::Instance();
 
-	if (PID == 3122) {
+	//if (PID == 3122) {
 	man->FillNtupleIColumn(0, evt);
 	man->FillNtupleIColumn(1, PID);
 	man->FillNtupleDColumn(2, vertexTrack[0]);
 	man->FillNtupleDColumn(3, vertexTrack[1]);
 	man->FillNtupleDColumn(4, vertexTrack[2]);
+	man->FillNtupleDColumn(5, momentumTrack[0]);
+	man->FillNtupleDColumn(6, momentumTrack[1]);
+	man->FillNtupleDColumn(7, momentumTrack[2]);
 	man->AddNtupleRow(0);
-	}
+	//}
 	
 	/*
 	G4Track *track = aStep->GetTrack();

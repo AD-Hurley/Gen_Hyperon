@@ -18,6 +18,9 @@ void MyRunAction::BeginOfRunAction(const G4Run*)
 	man->CreateNtupleDColumn("vx");
 	man->CreateNtupleDColumn("vy");
 	man->CreateNtupleDColumn("vz");
+	man->CreateNtupleDColumn("px");
+	man->CreateNtupleDColumn("py");
+	man->CreateNtupleDColumn("pz");
 	man->FinishNtuple(0);
 	
 }
