@@ -10,6 +10,7 @@
 #include "G4PhaseSpaceDecayChannel.hh"
 #include "Randomize.hh"
 #include "G4Exp.hh"
+#include "G4LorentzVector.hh"
 
 class MyPrimaryGenerator : public G4VUserPrimaryGeneratorAction
 {
@@ -19,8 +20,8 @@ public:
 	
 	virtual G4ThreeVector GetHyperonVertex();
 	virtual G4double GetPhotonE();
-	virtual G4ThreeVector GetHyperonAngle();
-	virtual G4double GetHyperonMom(G4double);
+	virtual G4ThreeVector GetHyperonCMDir();
+	virtual G4LorentzVector GetHyperonMom(G4double);
 	
 	virtual void GeneratePrimaries(G4Event*);
 	
