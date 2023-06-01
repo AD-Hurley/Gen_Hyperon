@@ -61,10 +61,47 @@ G4double MyPrimaryGenerator::GetPhotonE()
 	return gamEnergy * GeV;
 }
 
-G4ThreeVector MyPrimaryGenerator::GetHyperonCMDir()
+G4ThreeVector MyPrimaryGenerator::GetHyperonCMDir(G4double PhotonE)
 {
 	G4ThreeVector CMDir(0., 0., 1.);
 	//HypDir.setRThetaPhi(1, 3.1415*G4UniformRand(), 2*3.1415*(G4UniformRand() - .5));
+	
+	G4double p0, p1, p2, p3, p4;
+	if (PhotonE <= 1.135)
+	{
+		p0 = 0.56;
+		p1 = -1.8 + 2.1*PhotonE;
+		p2 = 0;
+		p3 = 0;
+		p4 = 0;
+	}
+	else
+	{
+		p0 = 0.53 * ((PhotonE < 1.435)?1:0) + G4Exp(2.43 - 2.24*PhotonE) *  ((PhotonE >= 1.435)?1:0);
+		p1 = (-0.76 + 1.66*PhotonE - 0.49*PhotonE*PhotonE)*((PhotonE < 1.9)?1:0) + (G4Exp(7.05 - 3.95*PhotonE))*((PhotonE >= 1.9)?1:0);
+		p2 = (-3.58 + 4.49*PhotonE - 1.14*PhotonE*PhotonE)*((PhotonE < 2.1)?1:0) + (G4Exp(5.74 - 2.82*PhotonE))*((PhotonE >= 2.1)?1:0);
+		p3 = (2.58 - 3.37*PhotonE + 0.92*PhotonE*PhotonE)*((PhotonE < 1.78)?1:0) + (0.78)*(1 - G4Exp(5.58 -2.87*PhotonE))*((PhotonE >= 1.78)?1:0);
+		p4 = (0.85 - 1.19*PhotonE + 0.30*PhotonE*PhotonE)*((PhotonE < 2.09)?1:0) + (0.99)*(1 - G4Exp(4.95 -2.28*PhotonE))*((PhotonE >= 2.09)?1:0);
+	}
+	
+	G4double cosThetaK, cosThetaK0, ThetaHyp;
+	
+	bool generated = false;
+	while (!generated)
+	{
+	 	cosThetaK0 = 2*(G4UniformRand()-0.5);
+	 	cosThetaK = p0 + p1*cosThetaK0 + p2*cosThetaK0*cosThetaK0 + p3*cosThetaK0*cosThetaK0*cosThetaK0 + p4*cosThetaK0*cosThetaK0*cosThetaK0*cosThetaK0;
+	 	
+	 	if ((2.0 * G4UniformRand()) < cosThetaK)
+		{
+			ThetaHyp = 3.1415 + std::acos(cosThetaK0);
+			G4cout << "ThetaHyp = " << ThetaHyp << G4endl;
+			CMDir.setRThetaPhi(1., ThetaHyp, 2*3.1415*(G4UniformRand() - .5));
+			generated = true;
+		}
+	}
+	
+	
 	return CMDir;
 }
 
@@ -76,9 +113,10 @@ G4LorentzVector MyPrimaryGenerator::GetHyperonMom(G4double PhotonE)
 	G4double kaonM = 0.494 * GeV;
 	G4double HypM = 1.116 * GeV;
 	
-	G4ThreeVector HypDir(0.,0.,1.); //move to args
-	HypDir.setRThetaPhi(1, 3.1415*G4UniformRand(), 2*3.1415*(G4UniformRand() - .5));
-	HypDir = HypDir*(1./HypDir.mag());
+	G4ThreeVector HypDir = GetHyperonCMDir(PhotonE);
+	//G4ThreeVector HypDir(0.,0.,1.); //move to args
+	//HypDir.setRThetaPhi(1, 3.1415*G4UniformRand(), 2*3.1415*(G4UniformRand() - .5));
+	//HypDir = HypDir*(1./HypDir.mag());
 	//G4cout << "HypDir = (" << HypDir[0] << "," << HypDir[1] << "," << HypDir[2] << ")" << G4endl;
 	
 	//Get beta vector for boost. This is the boost that goes from Lab(Eg_x, Eg_y, Eg_z, Eg + Mp) to CM(0,0,0,Eg'+Ep')
@@ -122,9 +160,11 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 	//G4ThreeVector pos(0., 0., z0);
 	//G4ThreeVector mom(0., 0., 1.);
 	
+	G4double PhotonE = GetPhotonE();
+	
 	G4ThreeVector pos = GetHyperonVertex();
-	G4ThreeVector CMDir = GetHyperonCMDir();
-	G4LorentzVector vecHyperonLab = GetHyperonMom(GetPhotonE());
+	//G4ThreeVector CMDir = GetHyperonCMDir(PhotonE);
+	G4LorentzVector vecHyperonLab = GetHyperonMom(PhotonE);
 	G4double mom = vecHyperonLab.rho();
 	G4ThreeVector LabDir = vecHyperonLab.vect() * (1./mom);
 	
