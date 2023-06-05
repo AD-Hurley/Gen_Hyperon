@@ -12,8 +12,8 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct()
 	//-------------- Material definitions ----------------------
 		
 	G4Material *targetMat = nist->FindOrBuildMaterial("G4_lH2");
-	//G4Material *worldMat = nist->FindOrBuildMaterial("G4_Galactic");
-	G4Material *worldMat = nist->FindOrBuildMaterial("G4_AIR");
+	G4Material *worldMat = nist->FindOrBuildMaterial("G4_Galactic");
+	//G4Material *worldMat = nist->FindOrBuildMaterial("G4_AIR");
 		
 	//-------------- Material Optical Properties ---------------
 	
@@ -41,7 +41,7 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct()
 	
 	G4Box *solidWorld = new G4Box("solidWorld", 2.0*m,2.0*m,2.0*m);
 	
-	G4LogicalVolume *logicWorld = new G4LogicalVolume(solidWorld, targetMat, "logicWorld");
+	G4LogicalVolume *logicWorld = new G4LogicalVolume(solidWorld, worldMat, "logicWorld");
 	
 	G4VPhysicalVolume *physWorld = new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicWorld, "physWorld", 0, false, 0, true);
 	
@@ -69,8 +69,8 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct()
 	// Detector Volume
 	//-------------------
 	
-	//G4Sphere *solidDetector = new G4Sphere("solidDetector", 1.999*m, 2.0*m, 0.*deg, 360.*deg, 0.*deg, 180.*deg);
-	G4Sphere *solidDetector = new G4Sphere("solidDetector", 0*m, 2.0*m, 0.*deg, 360.*deg, 0.*deg, 180.*deg);
+	G4Sphere *solidDetector = new G4Sphere("solidDetector", 1.999*m, 2.0*m, 0.*deg, 360.*deg, 0.*deg, 180.*deg);
+	//G4Sphere *solidDetector = new G4Sphere("solidDetector", 0*m, 2.0*m, 0.*deg, 360.*deg, 0.*deg, 180.*deg);
 	
 	logicDetector = new G4LogicalVolume(solidDetector, worldMat, "logicDetector");
 	

@@ -21,6 +21,10 @@ void MyRunAction::BeginOfRunAction(const G4Run*)
 	man->CreateNtupleDColumn("px");
 	man->CreateNtupleDColumn("py");
 	man->CreateNtupleDColumn("pz");
+	man->CreateNtupleDColumn("theta");
+	man->CreateNtupleDColumn("costheta");
+	man->CreateNtupleDColumn("phi");
+	man->CreateNtupleDColumn("Egamma");
 	man->FinishNtuple(0);
 	
 }

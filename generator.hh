@@ -11,6 +11,7 @@
 #include "Randomize.hh"
 #include "G4Exp.hh"
 #include "G4LorentzVector.hh"
+#include "G4AnalysisManager.hh"
 
 class MyPrimaryGenerator : public G4VUserPrimaryGeneratorAction
 {
