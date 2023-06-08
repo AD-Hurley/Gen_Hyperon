@@ -11,31 +11,39 @@ G4bool MySensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhis
 	
 	G4Track *track = aStep->GetTrack();
 	
-	track->SetTrackStatus(fStopAndKill);
+	//track->SetTrackStatus(fStopAndKill);
 	
 	G4StepPoint *preStepPoint = aStep->GetPreStepPoint();
 	G4StepPoint *postStepPoint = aStep->GetPostStepPoint();
 	
+	G4ThreeVector posPhoton = preStepPoint->GetPosition();
 	G4int PID = track->GetParticleDefinition()->GetPDGEncoding();
 	G4ThreeVector vertexTrack = track->GetVertexPosition();
 	
 	G4ThreeVector momTrack = track->GetMomentum();
 	G4double KETrack = track->GetKineticEnergy();
 	
+	const G4VTouchable *touchable = aStep->GetPreStepPoint()->GetTouchable();
+	G4int copyNo = touchable->GetCopyNumber();
+	
 	//G4cout << "track PID = " << PID << G4endl;
 	//G4cout << "Track Vertex = " << vertexTrack << G4endl;
 	
 	G4int evt = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
-	
+
 	G4AnalysisManager *man = G4AnalysisManager::Instance();
 
 
 	man->FillNtupleIColumn(0, evt);
 	man->FillNtupleIColumn(1, PID);
-	man->FillNtupleDColumn(2, vertexTrack[0]);
-	man->FillNtupleDColumn(3, vertexTrack[1]);
-	man->FillNtupleDColumn(4, vertexTrack[2]);
-	man->FillNtupleDColumn(5, KETrack);
+	man->FillNtupleIColumn(2, copyNo);
+	man->FillNtupleDColumn(3, vertexTrack[0]);
+	man->FillNtupleDColumn(4, vertexTrack[1]);
+	man->FillNtupleDColumn(5, vertexTrack[2]);
+	man->FillNtupleDColumn(6, momTrack[0]);
+	man->FillNtupleDColumn(7, momTrack[1]);
+	man->FillNtupleDColumn(8, momTrack[2]);
+	man->FillNtupleDColumn(9, KETrack);
 	man->AddNtupleRow(0);
 	
 

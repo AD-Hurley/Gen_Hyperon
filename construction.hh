@@ -23,6 +23,7 @@ public:
 	
 private:
 	G4LogicalVolume *logicDetector;
+	G4LogicalVolume *logicTarget;
 	virtual void ConstructSDandField();
 };
 
