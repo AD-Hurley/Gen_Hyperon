@@ -11,47 +11,34 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct()
 	
 	//-------------- Material definitions ----------------------
 	
-	G4Material *LH2 = new G4Material("LH2", 0.07085*g/cm3, 1);
-	LH2->AddElement(nist->FindOrBuildElement("H"),2);
+	//G4Material *LH2 = new G4Material("LH2", 0.07085*g/cm3, 1);
+	//LH2->AddElement(nist->FindOrBuildElement("H"),2);
 	
+	G4Material *targetMat = nist->FindOrBuildMaterial("G4_lH2");
 	G4Material *worldMat = nist->FindOrBuildMaterial("G4_Galactic");
+	//G4Material *worldMat = nist->FindOrBuildMaterial("G4_AIR");
 	
-	/*
-	G4Material *SiO2 = new G4Material("SiO2", 2.201*g/cm3, 2);
-	SiO2->AddElement(nist->FindOrBuildElement("Si"),1);
-	SiO2->AddElement(nist->FindOrBuildElement("O"),2);
-	
-	G4Material *H2O = new G4Material("H2O", 1.000*g/cm3, 2);
-	H2O->AddElement(nist->FindOrBuildElement("H"),2);
-	H2O->AddElement(nist->FindOrBuildElement("O"),1);
-
-	G4Element *C = nist->FindOrBuildElement("C");	
-	
-	G4Material *Aerogel = new G4Material("Aerogel", 0.200*g/cm3, 3);
-	Aerogel->AddMaterial(SiO2, 62.5*perCent);
-	Aerogel->AddMaterial(H2O, 37.4*perCent);
-	Aerogel->AddElement(C, 0.1*perCent);
-	
-	G4Material *worldMat = nist->FindOrBuildMaterial("G4_AIR");
-	*/
-	
+	//worldMat->GetMaterialPropertiesTable()->DumpTable();
+	//LH2->GetMaterialPropertiesTable()->DumpTable();
 	
 	//-------------- Material Optical Properties ---------------
 	
 	/*
-	G4double energy[2] = {1.239841939*eV/0.9, 1.239841939*eV/0.2};
-	G4double rindexAerogel[2] = {1.1, 1.1};
+	G4double energy[2] = {1.7*eV, 3.0*eV};
+	G4double rindexLH2[2] = {1.02, 1.055};
 	G4double rindexWorld[2] = {1.0, 1.0};
 	
-	G4MaterialPropertiesTable *mptAerogel = new G4MaterialPropertiesTable();
-	mptAerogel->AddProperty("RINDEX", energy, rindexAerogel, 2);
+	G4MaterialPropertiesTable *mptLH2 = new G4MaterialPropertiesTable();
+	mptLH2->AddProperty("RINDEX", energy, rindexLH2, 2);
 	
-	Aerogel->SetMaterialPropertiesTable(mptAerogel);
+	LH2->SetMaterialPropertiesTable(mptLH2);
 	
 	G4MaterialPropertiesTable *mptWorld = new G4MaterialPropertiesTable();
 	mptWorld->AddProperty("RINDEX", energy, rindexWorld, 2);
 	
 	worldMat->SetMaterialPropertiesTable(mptWorld);
+	
+	worldMat->GetMaterialPropertiesTable()->DumpTable();
 	*/
 	
 	//---------------- Component Geometry ---------------------
@@ -71,9 +58,9 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct()
 	//-------------------
 	
 	
-	G4Tubs *solidTarget = new G4Tubs("solidTarget", 0.*cm, 4.*cm, 125./2.*cm, 0*deg, 360*deg);
+	G4Tubs *solidTarget = new G4Tubs("solidTarget", 0.*cm, 4.*cm, 125./2.*cm, 0.*deg, 360.*deg);
 	
-	G4LogicalVolume *logicTarget = new G4LogicalVolume(solidTarget, worldMat, "logicTarget"); //!!!!! SET TO VACUUM MATERIAL
+	G4LogicalVolume *logicTarget = new G4LogicalVolume(solidTarget, targetMat, "logicTarget");
 	
 	G4VPhysicalVolume *physTarget = new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicTarget, "physTarget", logicWorld, false, 0, true);
 	
@@ -90,26 +77,12 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct()
 	// Detector Volume
 	//-------------------
 	
-	G4Box *solidDetector = new G4Box("solidDetector", 1.999*m, 1.999*m, 1.999*m);
+	//G4Sphere *solidDetector = new G4Sphere("solidDetector", 1.999*m, 2.0*m, 0.*deg, 360.*deg, 0.*deg, 180.*deg);
+	G4Tubs *solidDetector = new G4Tubs("solidDetector", 0.*cm, 20.*cm, 0.0001*cm, 0.*deg, 360.*deg);
 	
 	logicDetector = new G4LogicalVolume(solidDetector, worldMat, "logicDetector");
 	
-	G4VPhysicalVolume *physDetector = new G4PVPlacement(0, G4ThreeVector(0.*m, 0.*m, 0.*m), logicDetector, "physDetector", logicWorld, false, 0, true);
-	
-	/*
-	G4Box *solidDetector = new G4Box("solidDetector", 0.005*m, 0.005*m, 0.01*m);
-	
-	logicDetector = new G4LogicalVolume(solidDetector, worldMat, "logicDetector");
-	
-	for(G4int i = 0; i < 100; i++)
-	{
-		for(G4int j = 0; j < 100; j++)
-		{
-			G4VPhysicalVolume *physDetector = new G4PVPlacement(0, G4ThreeVector(-0.5*m+(i+0.5)*m/100, -0.5*m+(j+0.5)*m/100, 0.49*m), logicDetector, "physDetector", logicWorld, false, j+i*100, true); 
-		}
-	
-	}
-	*/
+	G4VPhysicalVolume *physDetector = new G4PVPlacement(0, G4ThreeVector(0.*cm, 0.*cm, (125./2.+0.0001)*cm), logicDetector, "physDetector", logicWorld, false, 0, true);
 	
 	return physWorld;
 	
