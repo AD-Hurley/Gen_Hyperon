@@ -4,8 +4,9 @@
 #include "G4UImanager.hh"
 #include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
-
+#include "G4VUserParallelWorld.hh"
 #include "construction.hh"
+#include "parallelconstruction.hh"
 #include "physics.hh"
 #include "action.hh"
 
@@ -15,6 +16,7 @@ int main(int argc, char** argv)
 	G4RunManager *runManager = new G4RunManager();
 	
 	runManager->SetUserInitialization(new MyDetectorConstruction());
+	//runManager->SetUserInitialization(new BremParallelDetectorConstruction());
 	runManager->SetUserInitialization(new MyPhysicsList());
 	runManager->SetUserInitialization(new MyActionInitialization());
 	

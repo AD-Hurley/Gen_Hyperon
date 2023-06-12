@@ -15,6 +15,7 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct()
 	//LH2->AddElement(nist->FindOrBuildElement("H"),2);
 	
 	G4Material *targetMat = nist->FindOrBuildMaterial("G4_lH2");
+	G4Material *detectorMat = nist->FindOrBuildMaterial("G4_lH2");
 	G4Material *worldMat = nist->FindOrBuildMaterial("G4_Galactic");
 	//G4Material *worldMat = nist->FindOrBuildMaterial("G4_AIR");
 	
@@ -85,12 +86,12 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct()
 	//G4Sphere *solidDetector = new G4Sphere("solidDetector", 1.999*m, 2.0*m, 0.*deg, 360.*deg, 0.*deg, 180.*deg);
 	
 	/*
-	G4Tubs *solidDetector = new G4Tubs("solidDetector", 0.*cm, 20.*cm, 0.0001*cm, 0.*deg, 360.*deg);
+	G4Tubs *solidDetector = new G4Tubs("solidDetector", 0.*cm, 4.*cm, 0.0001*cm, 0.*deg, 360.*deg);
 	
-	logicDetector = new G4LogicalVolume(solidDetector, worldMat, "logicDetector");
+	logicDetector = new G4LogicalVolume(solidDetector, detectorMat, "logicDetector");
 	
 	
-	for(G4int i = 0; i < 25; i++)
+	for(G4int i = 1; i < 35; i++)
 	{
 		G4VPhysicalVolume *physDetector = new G4PVPlacement(0, G4ThreeVector(0.,0.,(i*5.)*cm), logicDetector, "physDetector", logicWorld, false, i, true);
 	}

@@ -10,21 +10,22 @@
 #include "G4Tubs.hh"
 #include "G4NistManager.hh"
 #include "G4PVPlacement.hh"
+#include "G4VUserParallelWorld.hh"
 
 #include "detector.hh"
 
-class MyDetectorConstruction : public G4VUserDetectorConstruction
+class MyParallelConstruction : public G4VUserParallelWorld
 {
 public:
-	MyDetectorConstruction();
-	~MyDetectorConstruction();
+	MyParallelConstruction(G4String worldName);
+	~MyParallelConstruction();
 	
-	virtual G4VPhysicalVolume *Construct();
+	virtual void Construct();
+	virtual void ConstructSD();
 	
 private:
-	//G4LogicalVolume *logicDetector;
-	G4LogicalVolume *logicTarget;
-	virtual void ConstructSDandField();
+	G4LogicalVolume *logicDetector;
+
 };
 
 
