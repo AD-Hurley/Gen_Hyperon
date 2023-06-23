@@ -15,9 +15,19 @@ int main(int argc, char** argv)
 
 	G4RunManager *runManager = new G4RunManager();
 	
-	runManager->SetUserInitialization(new MyDetectorConstruction());
-	//runManager->SetUserInitialization(new BremParallelDetectorConstruction());
-	runManager->SetUserInitialization(new MyPhysicsList());
+	MyDetectorConstruction *massWorld = new MyDetectorConstruction;
+	
+	G4String paraWorldName = "ParallelWorld";
+	massWorld->RegisterParallelWorld(new MyParallelConstruction(paraWorldName));
+	
+	runManager->SetUserInitialization(massWorld);
+	
+	MyPhysicsList *PhysList = new MyPhysicsList;
+	
+	//runManager->SetUserInitialization(new MyPhysicsList());
+	PhysList->RegisterPhysics(new G4ParallelWorldPhysics(paraWorldName));
+	runManager->SetUserInitialization(PhysList);
+	
 	runManager->SetUserInitialization(new MyActionInitialization());
 	
 	runManager->Initialize();
@@ -33,6 +43,8 @@ int main(int argc, char** argv)
 	UImanager->ApplyCommand("/vis/open OGL");
 	UImanager->ApplyCommand("/vis/viewer/set/viewpointVector 1 0 0");
 	UImanager->ApplyCommand("/vis/drawVolume");
+	UImanager->ApplyCommand("/vis/scene/add/volume ParallelWorld");
+	UImanager->ApplyCommand("/vis/geometry/set/color logicDetector 0 blue 0.5");
 	UImanager->ApplyCommand("/vis/viewer/set/autoRefresh true");
 	UImanager->ApplyCommand("/vis/scene/add/trajectories smooth");
 	UImanager->ApplyCommand("/vis/scene/endOfEventAction accumulate 1");

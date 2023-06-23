@@ -15,6 +15,7 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct()
 	//LH2->AddElement(nist->FindOrBuildElement("H"),2);
 	
 	G4Material *targetMat = nist->FindOrBuildMaterial("G4_lH2");
+	//G4Material *targetMat = nist->FindOrBuildMaterial("G4_Galactic");
 	G4Material *detectorMat = nist->FindOrBuildMaterial("G4_lH2");
 	G4Material *worldMat = nist->FindOrBuildMaterial("G4_Galactic");
 	//G4Material *worldMat = nist->FindOrBuildMaterial("G4_AIR");

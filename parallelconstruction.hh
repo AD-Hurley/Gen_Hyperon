@@ -1,5 +1,5 @@
-#ifndef CONSTRUCTION_HH
-#define CONSTRUCTION_HH
+#ifndef PARALLELCONSTRUCTION_HH
+#define PARALLELCONSTRUCTION_HH
 
 #include "G4SystemOfUnits.hh"
 #include "G4VUserDetectorConstruction.hh"
@@ -11,14 +11,14 @@
 #include "G4NistManager.hh"
 #include "G4PVPlacement.hh"
 #include "G4VUserParallelWorld.hh"
-
+#include "globals.hh"
 #include "detector.hh"
 
 class MyParallelConstruction : public G4VUserParallelWorld
 {
 public:
 	MyParallelConstruction(G4String worldName);
-	~MyParallelConstruction();
+	virtual ~MyParallelConstruction();
 	
 	virtual void Construct();
 	virtual void ConstructSD();

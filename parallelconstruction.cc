@@ -14,9 +14,9 @@ void MyParallelConstruction::Construct()
 
 	G4Tubs *solidDetector = new G4Tubs("solidDetector", 0.*cm, 4.*cm, 0.0001*cm, 0.*deg, 360.*deg);
 	logicDetector = new G4LogicalVolume(solidDetector, 0, "logicDetector");
-	for(G4int i = 1; i < 35; i++)
+	for(G4int i = 1; i < 125; i++)
 	{
-		G4VPhysicalVolume *physDetector = new G4PVPlacement(0, G4ThreeVector(0.,0.,(i*5.)*cm), logicDetector, "physDetector", logicWorld, false, i, true);
+		G4VPhysicalVolume *physDetector = new G4PVPlacement(0, G4ThreeVector(0.,0.,(i*1.)*cm), logicDetector, "physDetector", logicWorld, false, i, true);
 	}
 	
 	return;

@@ -26,7 +26,7 @@ G4bool MySensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhis
 	const G4VTouchable *touchable = aStep->GetPreStepPoint()->GetTouchable();
 	G4int copyNo = touchable->GetCopyNumber();
 	
-	G4cout << "Copy Number: " << copyNo << G4endl;
+	//G4cout << "Copy Number: " << copyNo << G4endl;
 	
 	//G4cout << "track PID = " << PID << G4endl;
 	//G4cout << "Track Vertex = " << vertexTrack << G4endl;
