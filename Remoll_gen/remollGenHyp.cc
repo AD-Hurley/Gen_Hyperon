@@ -7,18 +7,20 @@
 #include "remollVertex.hh"
 #include "remolltypes.hh"
 
-remollGenMoller::remollGenHyp()
-  : remollVEventGen("Hyperon") {
-  //fThCoM_min =    30.0*deg;
-  //fThCoM_max =   150.0*deg;
+remollGenHyp::remollGenHyp()
+  : remollVEventGen("hyperon") {
+  //fThCoM_min =    0.0*deg;
+  //fThCoM_max =   180.0*deg;
 
-  //fApplyMultScatt = true;
+  //fQ2 = 0;
+  //fW2 = 1.7;
+  fApplyMultScatt = false;
 }
 
 remollGenHyp::~remollGenHyp(){
 }
 
-G4LorentzVector MyPrimaryGenerator::GetHyperonMom(G4double PhotonE)
+G4LorentzVector remollGenHyp::GetHyperonMom(G4double PhotonE)
 {
 	G4double Hypmom, HypE, W;
 	G4double protonM = 0.938 * GeV;
@@ -53,7 +55,7 @@ G4LorentzVector MyPrimaryGenerator::GetHyperonMom(G4double PhotonE)
 }
 
 
-G4double HypVertex()
+G4ThreeVector remollGenHyp::HypVertex()
 {
 	G4ThreeVector vertex(0., 0., 0.);
 
@@ -77,7 +79,7 @@ G4double HypVertex()
 	return vertex;
 }
 
-G4double HypPhotonE()
+G4double remollGenHyp::HypPhotonE()
 {
 	G4double EbremSim, dsigdE, gamEnergy, gamEnergy_prob; 
 	G4double EfnMax = 0.2518; //maximum value of the product of the imperical fits to normalized Egamma brem dist (simulated) and 1/sigma*dsigma/dE (fit to data) 
@@ -103,7 +105,7 @@ G4double HypPhotonE()
 	return gamEnergy * GeV;
 }
 
-G4double HypCMAngle(G4double PhotonE)
+G4ThreeVector remollGenHyp::HypCMAngle(G4double PhotonE)
 {
 	PhotonE = PhotonE/1000.; //convert to GeV
 	//G4cout << "in GetHyperonCMDir, photonE = " << PhotonE << G4endl;
@@ -160,17 +162,29 @@ void remollGenHyp::SamplePhysics(remollVertex *vert, remollEvent *evt){
 	if (IsPhotoproduction) {
 		
 		//G4double TargetZOffset = -4500.0*mm;
-		G4double TargetZOffset = 0.0;
+		//G4ThreeVector TargetZOffset(0.0, 0.0, 0.0);
 		
 		G4double PhotonE = HypPhotonE();
+		
+		evt->fBeamE = 11.0;
+		evt->fBeamMomentum = evt->fBeamMomentum.unit()*sqrt(11.0*11.0 - electron_mass_c2*electron_mass_c2);
+		evt->SetQ2(0.0);
+		evt->SetW2(0.938*0.938 + 2*0.938*PhotonE);
+		evt->SetAsymmetry(0.0);
+		evt->SetEffCrossSection(1.0);
 	
-		G4ThreeVector HyperonVertex = HypVertex() + TargetZOffset;
+		G4ThreeVector HyperonVertex = HypVertex();
 		//G4ThreeVector CMDir = GetHyperonCMDir(PhotonE);
 		G4LorentzVector vecHyperonLab = GetHyperonMom(PhotonE);
 		//G4double HypLabP = vecHyperonLab.rho();
 		G4ThreeVector HypLabP = vecHyperonLab.vect();
 		
-		evt->ProduceNewParticle( HyperonVertex, HypLabP, "lambda"); 
+		//evt->fVertexPos = (0,0,0);
+		//vert = 0;
+		//evt->fVertexPos.setZ( -4500 );
+		//evt->ProduceNewParticle(HyperonVertex, HypLabP, "proton");
+		evt->ProduceNewParticle(G4ThreeVector(0.0,0.0,0.0), HypLabP, "lambda");  
+		//evt->ProduceNewParticle(G4ThreeVector(0.0,0.0,0.0), G4ThreeVector(0.0,0.0,11.0), "proton");
 		
 		/*
 		G4double PhotonE = (11.0-.915)*(G4UniformRand()) + .915;
