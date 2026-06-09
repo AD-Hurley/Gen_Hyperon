@@ -12,6 +12,15 @@
 int main(int argc, char** argv)
 {
 
+	/*--------------------------------------------
+	Things arise and They let them come;
+	things disappear and They let them go.
+	They have but don't possess,
+	act but don't expect.
+	When Their work is done, They forget it.
+	That is why it lasts forever.
+	--------------------------------------------*/
+
 	G4RunManager *runManager = new G4RunManager();
 	
 	runManager->SetUserInitialization(new MyDetectorConstruction());

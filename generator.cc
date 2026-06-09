@@ -102,7 +102,7 @@ G4double MyPrimaryGenerator::genThetaP(G4double beamPol)
 	// This function samples the theta_p of the proton in the hyperon rest frame
 	//------------------------------------------------------------------------------------
 
-	G4double helPol = 0.0*beamPol;
+	G4double helPol = -0.5*beamPol;
 	G4double helAlpha = 0.75;
 	G4double helTheta;
 	G4double randAcceptor;
@@ -137,8 +137,11 @@ G4double MyPrimaryGenerator::genThetaP(G4double beamPol)
 
 void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 {
+	CLHEP::HepRandom::setTheSeed((unsigned)clock());
+
 	//Kinematic variables
-	G4double beamE, beamPol, recoilE, recoilE_max, Q2, W2, epsilon, gamma, theta_e, phi_e, theta_K, phi_K, theta_p, phi_p;
+	G4double beamPol, recoilE, Q2_max, Q2, W2, epsilon, gamma, theta_e, phi_e, theta_K, phi_K, theta_p, phi_p;
+	bool isAcceptableWQ = false;
 	
 	//four vectors
 	G4LorentzVector vecTarget_Lab, vecBeam_Lab, vecRecoilElectron_Lab, vecPhoton_Lab, vecCMFrame, vecHyperon_CM, vecHyperon_Lab, vecKaon_CM, vecKaon_Lab, vecRecoilProton_Hel, vecRecoilProton_CM, vecRecoilProton_Lab, vecPion_Hel, vecPion_CM, vecPion_Lab;
@@ -151,37 +154,47 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 	beamE = 11.0;
 	
 	//set beam polarization
-	beamPol = -1.0;
+	beamPol = 1.0;
 	
 	//Limit Phasespace for efficiency loop
-	do{	
-		//Throw angular distributions (except phi_K)
-		theta_e = G4UniformRand()*CLHEP::pi;
+	//do{	
+		//Throw angular distributions (except phi_K and theta_e)
+		//theta_e = G4UniformRand()*CLHEP::pi;
 		phi_e = 2*CLHEP::pi*(G4UniformRand() - .5);
 		theta_K = G4UniformRand()*CLHEP::pi;
 		phi_p = 2*CLHEP::pi*(G4UniformRand() - .5);
 		theta_p = genThetaP(beamPol);
+		
+		//Throw W2, calculate max Q2, Throw Q2, and calculate E' and theta_e
+		W2 = (W2_max - W2_min)*G4UniformRand() + W2_min;
+		do{
+			W2 = W2_min + CLHEP::RandExponential::shoot(4);
+			//G4cout << W2 << G4endl;
+		}while(W2 > W2_max);
+		Q2_max = (W2_max - W2)/(1.0 + 0.5*proton_mass/beamE);
+		do{
+			Q2 = CLHEP::RandExponential::shoot(4);
+		}while(Q2 > Q2_max);
+		//Q2 = G4UniformRand()*Q2_max;
+		recoilE = (W2_max - Q2 - W2)/(2*proton_mass);
+		theta_e = 2*std::asin(std::sqrt(Q2/(4*beamE*recoilE)));
 
+		//G4cout << "W2 " << W2 << G4endl;
+		//G4cout << "Q2_max " << Q2_max << G4endl;
+
+		epsilon = 1.0/(1.0 + 2*std::tan(theta_e)*std::tan(theta_e)*(recoilE*recoilE + beamE*beamE - 2*beamE*recoilE*std::cos(theta_e))/Q2);
+		gamma = (1.0/137.0)/(2*std::pow(3.14159,2))*(recoilE/beamE)*((W2 - proton_mass*proton_mass)/(2*proton_mass))*(1.0/Q2)*(1.0/(1-epsilon));	
+			
 		if (testNoAngDist == true){
 			theta_e = 0;
 			phi_e = 0;
 			theta_K = 0;
 			phi_p = 0;
 		}
-
-		//Calculate E'_max and throw E'
-		recoilE_max = (std::pow(proton_mass,2) + 2*proton_mass*beamE - W2_min)/(4.0*beamE*std::pow(std::sin(theta_e/2.0),2) + 2.0*proton_mass);
-		recoilE = G4UniformRand()*recoilE_max;
-		
+	
 		if ((testNoAngDist == true) || (testFlatDist == true)){
 			recoilE = 5.0;
 		}
-		
-		//Calculate W2, Q2, and epsilon(virtual photon tansverse polarization factor)
-		Q2 = 4*beamE*recoilE*std::pow(std::sin(theta_e/2.0),2);
-		W2 = proton_mass*proton_mass - Q2 + 2*proton_mass*(beamE-recoilE);
-		epsilon = 1.0/(1.0 + 2*std::tan(theta_e)*std::tan(theta_e)*(recoilE*recoilE + beamE*beamE - 2*beamE*recoilE*std::cos(theta_e))/Q2);
-		gamma = (1.0/137.0)/(2*std::pow(3.14159,2))*(recoilE/beamE)*((W2 - proton_mass*proton_mass)/(2*proton_mass))*(1.0/Q2)*(1.0/(1-epsilon));
 		
 		//Sample phi_K
 		phi_K = genPhiK(Q2, W2, std::cos(theta_K), epsilon, beamPol);
@@ -215,7 +228,7 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 		vecBeam_Lab.set(0,0,beamE,beamE);
 		vecRecoilElectron_Lab.setRThetaPhi(recoilE,theta_e,phi_e);
 		vecRecoilElectron_Lab.setE(recoilE);
-		
+
 		vecPhoton_Lab = vecBeam_Lab - vecRecoilElectron_Lab;
 
 		//Boost CM Frame 4-vectors to Lab Frame
@@ -224,10 +237,12 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 		vecHyperon_Lab = vecHyperon_CM;
 		vecKaon_Lab = vecKaon_CM;
 		
+		
 		if ((testHypRestFrame == false) && (testCOMRestFrame == false)){
 			vecHyperon_Lab.boost(vecBoost_CMtoLab);
 			vecKaon_Lab.boost(vecBoost_CMtoLab);
 		}
+		
 		
 		if (testHypRestFrame == true){
 			vecHyperon_Lab.set(0,0,0,hyperon_mass);
@@ -245,13 +260,15 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 			vecPion_CM = vecPion_CM.boost(vecBoost_HeltoCM);	
 		}
 
+
 		vecRecoilProton_Lab = vecRecoilProton_CM;
 		vecPion_Lab = vecPion_CM;
 		if ((testHypRestFrame == false) && (testCOMRestFrame == false)){
 			vecPion_Lab = vecPion_Lab.boost(vecBoost_CMtoLab);
 			vecRecoilProton_Lab = vecRecoilProton_Lab.boost(vecBoost_CMtoLab);
 		}
-	}while(vecPion_Lab.theta() > 0.06); //0.06 based on 1M sample of pol = -1 run through remoll
+	//}while(vecPion_Lab.theta() > 0.06); //0.06 based on 1M sample of pol = -1 run through remoll
+
 
 	//------------------------------------------Generate Event------------------------------------------
 	
@@ -304,7 +321,7 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 	man->FillNtupleDColumn(4, 3, epsilon);  //xs
 	man->FillNtupleDColumn(4, 4, Q2);  //Q2
 	man->FillNtupleDColumn(4, 5, W2);  //W2
-	man->FillNtupleDColumn(4, 6, theta_e);  //thcom
+	man->FillNtupleDColumn(4, 6, vecPion_Lab.theta());  //thcom
 	man->FillNtupleDColumn(4, 7, beamE);  //beamp
 	man->AddNtupleRow(4);
 	

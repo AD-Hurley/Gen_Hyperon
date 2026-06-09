@@ -31,7 +31,7 @@ G4bool MySensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhis
 	G4AnalysisManager *man = G4AnalysisManager::Instance();
 	
 	if (PID == 11) {
-		if (evt%100000 == 0){G4cout << evt << "th event generated" << G4endl;}
+		if (evt%10000 == 0){G4cout << evt << "th event generated" << G4endl;}
 		man->FillNtupleDColumn(0, 0, PID);  //pid
 		man->FillNtupleDColumn(0, 1, vertexTrack[0]);  //vx
 		man->FillNtupleDColumn(0, 2, vertexTrack[1]); //vy

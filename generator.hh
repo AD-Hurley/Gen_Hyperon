@@ -28,6 +28,8 @@ public:
 	virtual G4double genPhiK(G4double Q2, G4double W2, G4double cosThetaK, G4double epsilon, G4double beamPol);
 	virtual G4double genThetaP(G4double beamPol);
 	
+	G4double beamE = 11.0;
+	
 	G4ParticleDefinition* electron = G4ParticleTable::GetParticleTable()->FindParticle("e-");
   G4ParticleDefinition* proton = G4ParticleTable::GetParticleTable()->FindParticle("proton");
 	G4ParticleDefinition* kaon = G4ParticleTable::GetParticleTable()->FindParticle("kaon+");
@@ -47,7 +49,9 @@ public:
 	//G4double proton_helE = (std::pow(hyperon_mass,2) + std::pow(proton_mass,2) - std::pow(pion_mass,2))/(2*hyperon_mass);
 	//G4double pion_helE =  (std::pow(hyperon_mass,2) - std::pow(proton_mass,2) + std::pow(pion_mass,2))/(2*hyperon_mass);
 
-	G4double W2_min = std::pow((kaon_mass + hyperon_mass),2); //W2 minimum is the mass required to produce K and Y with 0 momentum
+	//W2 minimum is the mass required to produce K and Y with 0 momentum
+	G4double W2_min = std::pow((kaon_mass + hyperon_mass),2);
+	G4double W2_max = std::pow(proton_mass,2) + 2*proton_mass*beamE;
 	
 	//G4double evt_Q2, evt_W2, evt_thcom, evt_beamp;
 	 
