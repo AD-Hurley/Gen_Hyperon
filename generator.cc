@@ -141,7 +141,12 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 
 	//Kinematic variables
 	G4double beamPol, recoilE, Q2_max, Q2, W2, epsilon, gamma, theta_e, phi_e, theta_K, phi_K, theta_p, phi_p;
-	bool isAcceptableWQ = false;
+	
+	G4int debugInt = 0;
+	G4int debugInt_2 = 0;
+	
+	G4double gammaAcceptor;
+	bool isAcceptableQW;
 	
 	//four vectors
 	G4LorentzVector vecTarget_Lab, vecBeam_Lab, vecRecoilElectron_Lab, vecPhoton_Lab, vecCMFrame, vecHyperon_CM, vecHyperon_Lab, vecKaon_CM, vecKaon_Lab, vecRecoilProton_Hel, vecRecoilProton_CM, vecRecoilProton_Lab, vecPion_Hel, vecPion_CM, vecPion_Lab;
@@ -154,18 +159,50 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 	beamE = 11.0;
 	
 	//set beam polarization
-	beamPol = 1.0;
+	beamPol = -1.0;
 	
 	//Limit Phasespace for efficiency loop
-	//do{	
+	//do{
+			
 		//Throw angular distributions (except phi_K and theta_e)
 		//theta_e = G4UniformRand()*CLHEP::pi;
 		phi_e = 2*CLHEP::pi*(G4UniformRand() - .5);
+		//if(phi_e < 0.00001){phi_e == 0.00001;}
 		theta_K = G4UniformRand()*CLHEP::pi;
 		phi_p = 2*CLHEP::pi*(G4UniformRand() - .5);
 		theta_p = genThetaP(beamPol);
 		
 		//Throw W2, calculate max Q2, Throw Q2, and calculate E' and theta_e
+		
+		gammaAcceptor = G4UniformRand();
+		
+		debugInt = 0;
+		
+		isAcceptableQW = false;
+		while(!isAcceptableQW){
+			W2 = (W2_max - W2_min)*G4UniformRand() + W2_min;
+			Q2_max = (W2_max - W2)/(1.0 + 0.5*proton_mass/beamE);
+			Q2 = Q2_max*G4UniformRand();
+				
+			recoilE = (W2_max - Q2 - W2)/(2*proton_mass);
+			theta_e = 2*std::asin(std::sqrt(Q2/(4*beamE*recoilE)));
+			
+			epsilon = 1.0/(1.0 + 2*std::tan(theta_e/2.0)*std::tan(theta_e/2.0)*(recoilE*recoilE + beamE*beamE - 2*beamE*recoilE*std::cos(theta_e))/Q2);
+			gamma = (1.0/137.0)/(2*std::pow(3.14159,2))*(recoilE/beamE)*((W2 - proton_mass*proton_mass)/(2*proton_mass))*(1.0/Q2)*(1.0/(1-epsilon));
+				
+			/*
+				debugInt++;
+				if(debugInt > 10000){
+					G4cout << "stuck?? theta_e = " << theta_e << ", recoilE = " << recoilE << ", epsilon = " << epsilon << ", G = " << gamma << G4endl; 
+				}
+				*/			
+			if(gammaAcceptor < gamma){
+				isAcceptableQW = true;
+				//G4cout << "Good Q2 and W2" << G4endl;
+			}	
+		}
+		
+		/*
 		W2 = (W2_max - W2_min)*G4UniformRand() + W2_min;
 		do{
 			W2 = W2_min + CLHEP::RandExponential::shoot(4);
@@ -178,12 +215,13 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 		//Q2 = G4UniformRand()*Q2_max;
 		recoilE = (W2_max - Q2 - W2)/(2*proton_mass);
 		theta_e = 2*std::asin(std::sqrt(Q2/(4*beamE*recoilE)));
-
+	
 		//G4cout << "W2 " << W2 << G4endl;
 		//G4cout << "Q2_max " << Q2_max << G4endl;
 
 		epsilon = 1.0/(1.0 + 2*std::tan(theta_e)*std::tan(theta_e)*(recoilE*recoilE + beamE*beamE - 2*beamE*recoilE*std::cos(theta_e))/Q2);
 		gamma = (1.0/137.0)/(2*std::pow(3.14159,2))*(recoilE/beamE)*((W2 - proton_mass*proton_mass)/(2*proton_mass))*(1.0/Q2)*(1.0/(1-epsilon));	
+		*/
 			
 		if (testNoAngDist == true){
 			theta_e = 0;
@@ -266,7 +304,13 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 		if ((testHypRestFrame == false) && (testCOMRestFrame == false)){
 			vecPion_Lab = vecPion_Lab.boost(vecBoost_CMtoLab);
 			vecRecoilProton_Lab = vecRecoilProton_Lab.boost(vecBoost_CMtoLab);
+		}		
+		/*
+		if(debugInt_2 > 10000){
+			G4cout << vecPion_Lab.theta() << G4endl;
 		}
+		debugInt_2++;
+		*/
 	//}while(vecPion_Lab.theta() > 0.06); //0.06 based on 1M sample of pol = -1 run through remoll
 
 
@@ -315,8 +359,8 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 	
 	G4AnalysisManager *man = G4AnalysisManager::Instance();
 	
-	man->FillNtupleDColumn(4, 0, 1.0);  //rate
-	man->FillNtupleDColumn(4, 1, gamma);  //A
+	man->FillNtupleDColumn(4, 0, gamma);  //rate
+	man->FillNtupleDColumn(4, 1, 1.0);  //A
 	man->FillNtupleDColumn(4, 2, recoilE);  //Am
 	man->FillNtupleDColumn(4, 3, epsilon);  //xs
 	man->FillNtupleDColumn(4, 4, Q2);  //Q2
