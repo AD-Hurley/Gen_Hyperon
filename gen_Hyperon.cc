@@ -20,6 +20,8 @@ int main(int argc, char** argv)
 	
 	runManager->Initialize();
 	
+	//Visualization mode
+	/*
 	G4UIExecutive *ui = new G4UIExecutive(argc, argv);
 	
 	G4VisManager *visManager = new G4VisExecutive();
@@ -35,6 +37,12 @@ int main(int argc, char** argv)
 	UImanager->ApplyCommand("/vis/scene/endOfEventAction accumulate");
 	
 	ui->SessionStart();
+	*/
+	
+	//Batch mode
+	int numberOfEvent = 10000000;
+	runManager->BeamOn(numberOfEvent);
+	delete runManager;
 	
 	return 0;
 }

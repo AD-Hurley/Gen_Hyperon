@@ -47,13 +47,13 @@ TH2D *hPion_WvP_lab = new TH2D("Pi_W_P_lab","#pi^{-} W vs |p|; #pi^{-} |p_{lab}|
       Double_t Theta_lab = ran->Uniform(0,TMath::Pi()); //flat theta CM
       Q2 = 4*BeamE*electronE*std::pow(TMath::Sin(Theta_lab),2);
     */
-    //Double_t W = 2.15217; //in GeV. for Q2 = 0 (photoproduction) with Egamma = 11.0 GeV. Change later for electroproduction
+    Double_t W = 2.15217; //in GeV. for Q2 = 0 (photoproduction) with Egamma = 11.0 GeV. Change later for electroproduction
     //Double_t W = ran->Uniform(3.0,4.62);
     //GammaE = BeamE - electronE;
-    GammaE = 4.0;
-    
-    Double_t W = TMath::Sqrt( std::pow(0.938,2) - Q2 + 2*0.938*(GammaE));
-    cout << "W = " << W << endl;
+    GammaE = 2.0;
+    /*
+      W = TMath::Sqrt( std::pow(0.938,2) - Q2 + 2*0.938*(GammaE);
+    */
     
     M_Y = 1.11; //Mass of the Hyperon, lambda(1116) in this case. Add switch for sigma0 later.
     
@@ -144,24 +144,24 @@ TH2D *hPion_WvP_lab = new TH2D("Pi_W_P_lab","#pi^{-} W vs |p|; #pi^{-} |p_{lab}|
     if (isVerbose){
       cout << "-------------------Hyperon Rest Frame-------------------------" << endl;
       
-      cout << "Pi_P4(Px,Py,Pz,E) = (" << Pi_P4(0) << "," << Pi_P4(1) << "," << Pi_P4(2) << "," << Pi_P4(3) << ")" << endl; 
-      cout << "Proton_P4(Px,Py,Pz,E) = (" << Proton_P4(0) << "," << Proton_P4(1) << "," << Proton_P4(2) << "," << Proton_P4(3) << ")" << endl; 
+      cout << "Pi_P4(Px,Py,Pz,E) = " << Pi_P4(0) << "," << Pi_P4(1) << "," << Pi_P4(2) << "," << Pi_P4(3) << ")" << endl; 
+      cout << "Proton_P4(Px,Py,Pz,E) = " << Proton_P4(0) << "," << Proton_P4(1) << "," << Proton_P4(2) << "," << Proton_P4(3) << ")" << endl; 
       
       cout << endl << "-------------------------CM Frame-----------------------------" << endl;
       
-      cout << "Pi_CM(Px,Py,Pz,E) = (" << Pi_CM(0) << "," << Pi_CM(1) << "," << Pi_CM(2) << "," << Pi_CM(3) << ")" << endl;
-      cout << "Proton_CM(Px,Py,Pz,E) = (" << Proton_CM(0) << "," << Proton_CM(1) << "," << Proton_CM(2) << "," << Proton_CM(3) << ")" << endl;
-      cout << "Y_P4(Px,Py,Pz,E) = (" << Y_P4(0) << "," << Y_P4(1) << "," << Y_P4(2) << "," << Y_P4(3) << ")" << endl;
-      cout << "K_P4(Px,Py,Pz,E) = (" << K_P4(0) << "," << K_P4(1) << "," << K_P4(2) << "," << K_P4(3) << ")" << endl;
+      cout << "Pi_CM(Px,Py,Pz,E) = " << Pi_CM(0) << "," << Pi_CM(1) << "," << Pi_CM(2) << "," << Pi_CM(3) << ")" << endl;
+      cout << "Proton_CM(Px,Py,Pz,E) = " << Proton_CM(0) << "," << Proton_CM(1) << "," << Proton_CM(2) << "," << Proton_CM(3) << ")" << endl;
+      cout << "Y_P4(Px,Py,Pz,E) = " << Y_P4(0) << "," << Y_P4(1) << "," << Y_P4(2) << "," << Y_P4(3) << ")" << endl;
+      cout << "K_P4(Px,Py,Pz,E) = " << K_P4(0) << "," << K_P4(1) << "," << K_P4(2) << "," << K_P4(3) << ")" << endl;
     
       cout << endl << "------------------------ lab Frame ---------------------------" << endl;
       
-      cout << "CM to lab boost vector = (" << CMToLab_BoostVector(0) << "," << CMToLab_BoostVector(1) << "," << CMToLab_BoostVector(2) << ")" << endl;
+      cout << "CM to lab boost vector = " << CMToLab_BoostVector(0) << "," << CMToLab_BoostVector(1) << "," << CMToLab_BoostVector(2) << endl;
       
-      cout << "Pi_lab(Px,Py,Pz,E) = (" << Pi_lab(0) << "," << Pi_lab(1) << "," << Pi_lab(2) << "," << Pi_lab(3) << ")" << endl;
-      cout << "Proton_lab(Px,Py,Pz,E) = (" << Proton_lab(0) << "," << Proton_lab(1) << "," << Proton_lab(2) << "," << Proton_lab(3) << ")" << endl;
-      cout << "Y_lab(Px,Py,Pz,E) = (" << Y_lab(0) << "," << Y_lab(1) << "," << Y_lab(2) << "," << Y_lab(3) << ")" << endl;
-      cout << "K_lab(Px,Py,Pz,E) = (" << K_lab(0) << "," << K_lab(1) << "," << K_lab(2) << "," << K_lab(3) << ")" << endl;  
+      cout << "Pi_lab(Px,Py,Pz,E) = " << Pi_lab(0) << "," << Pi_lab(1) << "," << Pi_lab(2) << "," << Pi_lab(3) << ")" << endl;
+      cout << "Proton_lab(Px,Py,Pz,E) = " << Proton_lab(0) << "," << Proton_lab(1) << "," << Proton_lab(2) << "," << Proton_lab(3) << ")" << endl;
+      cout << "Y_lab(Px,Py,Pz,E) = " << Y_lab(0) << "," << Y_lab(1) << "," << Y_lab(2) << "," << Y_lab(3) << ")" << endl;
+      cout << "K_lab(Px,Py,Pz,E) = " << K_lab(0) << "," << K_lab(1) << "," << K_lab(2) << "," << K_lab(3) << ")" << endl;  
     }
     
     
