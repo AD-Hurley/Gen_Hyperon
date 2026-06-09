@@ -12,6 +12,15 @@
 int main(int argc, char** argv)
 {
 
+	/*--------------------------------------------
+	Things arise and They let them come;
+	things disappear and They let them go.
+	They have but don't possess,
+	act but don't expect.
+	When Their work is done, They forget it.
+	That is why it lasts forever.
+	--------------------------------------------*/
+
 	G4RunManager *runManager = new G4RunManager();
 	
 	runManager->SetUserInitialization(new MyDetectorConstruction());
@@ -20,6 +29,8 @@ int main(int argc, char** argv)
 	
 	runManager->Initialize();
 	
+	//Visualization mode
+	/*
 	G4UIExecutive *ui = new G4UIExecutive(argc, argv);
 	
 	G4VisManager *visManager = new G4VisExecutive();
@@ -35,6 +46,12 @@ int main(int argc, char** argv)
 	UImanager->ApplyCommand("/vis/scene/endOfEventAction accumulate");
 	
 	ui->SessionStart();
+	*/
+	
+	//Batch mode
+	int numberOfEvent = 1000000;
+	runManager->BeamOn(numberOfEvent);
+	delete runManager;
 	
 	return 0;
 }

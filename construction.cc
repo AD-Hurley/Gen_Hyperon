@@ -11,9 +11,9 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct()
 	
 	//-------------- Material definitions ----------------------
 		
-	G4Material *targetMat = nist->FindOrBuildMaterial("G4_lH2");
+	G4Material *targetMat = nist->FindOrBuildMaterial("G4_Galactic");
+	//G4Material *worldMat = nist->FindOrBuildMaterial("G4_Galactic");
 	G4Material *worldMat = nist->FindOrBuildMaterial("G4_Galactic");
-	//G4Material *worldMat = nist->FindOrBuildMaterial("G4_AIR");
 		
 	//-------------- Material Optical Properties ---------------
 	
@@ -41,7 +41,7 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct()
 	
 	G4Box *solidWorld = new G4Box("solidWorld", 2.0*m,2.0*m,2.0*m);
 	
-	G4LogicalVolume *logicWorld = new G4LogicalVolume(solidWorld, worldMat, "logicWorld");
+	G4LogicalVolume *logicWorld = new G4LogicalVolume(solidWorld, targetMat, "logicWorld");
 	
 	G4VPhysicalVolume *physWorld = new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicWorld, "physWorld", 0, false, 0, true);
 	
@@ -50,11 +50,11 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct()
 	//-------------------
 	
 	
-	G4Tubs *solidTarget = new G4Tubs("solidTarget", 0.*cm, 4.*cm, 125./2.*cm, 0*deg, 360*deg);
+	//G4Tubs *solidTarget = new G4Tubs("solidTarget", 0.*cm, 4.*cm, 125./2.*cm, 0*deg, 360*deg);
 	
-	G4LogicalVolume *logicTarget = new G4LogicalVolume(solidTarget, worldMat, "logicTarget"); //!!!!! SET TO VACUUM MATERIAL
+	//G4LogicalVolume *logicTarget = new G4LogicalVolume(solidTarget, worldMat, "logicTarget"); //!!!!! SET TO VACUUM MATERIAL
 	
-	G4VPhysicalVolume *physTarget = new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicTarget, "physTarget", logicWorld, false, 0, true);
+	//G4VPhysicalVolume *physTarget = new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), logicTarget, "physTarget", logicWorld, false, 0, true);
 	
 	
 	/*
