@@ -17,13 +17,14 @@ bool testFlatDist = false;
 bool testHypRestFrame = false;
 bool testCOMRestFrame = false;
 
-G4double MyPrimaryGenerator::genPhiK(G4double Q2, G4double W2, G4double cosThetaK, G4double epsilon, G4double beamPol)
+std::array<G4double,2> MyPrimaryGenerator::genPhiK(G4double Q2, G4double W2, G4double epsilon, G4double beamPol)
 {
 	//------------------------------------------------------------------------------------
 	//This function samples CM frame phi_K based on the angular cross-section data 
 	//------------------------------------------------------------------------------------
 	
 	G4double sig_U, sig_LT, sig_TT, sig_LTp;
+	G4double thetaK, cosThetaK; 
 	
 	//determine Q2 index
 	/*
@@ -39,27 +40,14 @@ G4double MyPrimaryGenerator::genPhiK(G4double Q2, G4double W2, G4double cosTheta
 	G4double W = std::sqrt(W2);
 	for(G4int i = 0; i < 20; i++)
 	{
-		if (W > Resp_WIndexKey[i])
+		if (W > Resp_WIndexKey[i] && Resp_WIndex < 19)
 			{
 				Resp_WIndex++;
 			} 	
 	}
 	
-	//determine cos(theta) index
-	G4int Resp_cosThetaIndex = 0;
-	for(G4int i = 0; i < 10; i++)
-	{
-		if (W > Resp_cosThetaIndexKey[i])
-			{
-				Resp_cosThetaIndex++;
-			} 	
-	}
-	
-	sig_U = ResponseFnValues[Resp_WIndex][Resp_cosThetaIndex][0];
-	sig_LT = ResponseFnValues[Resp_WIndex][Resp_cosThetaIndex][1];
-	sig_TT = ResponseFnValues[Resp_WIndex][Resp_cosThetaIndex][2];
-	sig_LTp = ResponseFnValues[Resp_WIndex][Resp_cosThetaIndex][3];
-	
+	G4int Resp_cosThetaIndex;
+
 	//if(Q2 < 1.8)
 	//{
 		//do nothing right now. Interpolation of data incoming
@@ -70,17 +58,38 @@ G4double MyPrimaryGenerator::genPhiK(G4double Q2, G4double W2, G4double cosTheta
 	
 	if (testFlatDist == true){
 		phi_K = 2*CLHEP::pi*(G4UniformRand() - .5);
+		thetaK = G4UniformRand()*CLHEP::pi;
 	}
 	else if (testNoAngDist == true){
 		phi_K = 0;
+		thetaK = 0;
 	}
 	else{
 		while(!isAcceptablePhi)
 		{
 			phi_K = 2*CLHEP::pi*(G4UniformRand() - .5);
+			thetaK = G4UniformRand()*CLHEP::pi;
+			cosThetaK = std::cos(thetaK);
 			
-			randAcceptor = 1.5*(sig_U + epsilon*sig_TT + std::sqrt(2*epsilon*(1 + epsilon))*sig_LT + beamPol*std::sqrt(2*epsilon*(1 - epsilon))*sig_LTp)*G4UniformRand();
-			sigma = sig_U + epsilon*sig_TT + std::sqrt(2*epsilon*(1 + epsilon))*sig_LT*std::cos(phi_K) + beamPol*std::sqrt(2*epsilon*(1 - epsilon))*sig_LTp*std::sin(phi_K);
+			//determine cos(theta) index
+			Resp_cosThetaIndex = 0;
+			
+			for(G4int i = 0; i < 10; i++)
+			{
+				if (cosThetaK > Resp_cosThetaIndexKey[i])
+				{
+					Resp_cosThetaIndex++;
+				} 	
+			}
+	
+			sig_U = ResponseFnValues[Resp_WIndex][Resp_cosThetaIndex][0];
+			sig_LT = ResponseFnValues[Resp_WIndex][Resp_cosThetaIndex][1];
+			sig_TT = ResponseFnValues[Resp_WIndex][Resp_cosThetaIndex][2];
+			sig_LTp = ResponseFnValues[Resp_WIndex][Resp_cosThetaIndex][3];
+	
+			//randAcceptor = 1.5*(sig_U + epsilon*sig_TT + std::sqrt(2*epsilon*(1 + epsilon))*sig_LT + beamPol*std::sqrt(2*epsilon*(1 - epsilon))*sig_LTp)*G4UniformRand();
+			randAcceptor = 400*G4UniformRand();
+			sigma = sig_U + epsilon*sig_TT*std::cos(2*phi_K) + std::sqrt(2*epsilon*(1 + epsilon))*sig_LT*std::cos(phi_K) + beamPol*std::sqrt(2*epsilon*(1 - epsilon))*sig_LTp*std::sin(phi_K);
 			
 			//G4cout << "Throwing Phi_K: " <<  randAcceptor - sigma << G4endl;
 			
@@ -91,8 +100,17 @@ G4double MyPrimaryGenerator::genPhiK(G4double Q2, G4double W2, G4double cosTheta
 		}
 	}
 
-	
-	return phi_K;
+/*
+	if (sig_U > 1000){
+		G4cout << "sig_U = " << sig_U << G4endl; 
+		G4cout << "W = " << W << G4endl;
+		G4cout << "thetaK = " << thetaK << G4endl;
+		 G4cout << "Resp_WIndex = " << Resp_WIndex << G4endl;
+		 G4cout << "Resp_cosThetaIndex = " << Resp_cosThetaIndex << G4endl;
+	}
+	*/
+	//thetaK = sigma;
+	return {thetaK, phi_K};
 }
 
 G4double MyPrimaryGenerator::genThetaP(G4double beamPol)
@@ -141,6 +159,7 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 
 	//Kinematic variables
 	G4double beamPol, recoilE, Q2_max, Q2, W2, epsilon, gamma, theta_e, phi_e, theta_K, phi_K, theta_p, phi_p;
+	std::array<G4double,2> K_angles;
 	
 	G4int debugInt = 0;
 	G4int debugInt_2 = 0;
@@ -162,13 +181,13 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 	beamPol = -1.0;
 	
 	//Limit Phasespace for efficiency loop
-	//do{
+	do{
 			
 		//Throw angular distributions (except phi_K and theta_e)
 		//theta_e = G4UniformRand()*CLHEP::pi;
 		phi_e = 2*CLHEP::pi*(G4UniformRand() - .5);
 		//if(phi_e < 0.00001){phi_e == 0.00001;}
-		theta_K = G4UniformRand()*CLHEP::pi;
+		//theta_K = G4UniformRand()*CLHEP::pi;
 		phi_p = 2*CLHEP::pi*(G4UniformRand() - .5);
 		theta_p = genThetaP(beamPol);
 		
@@ -234,8 +253,10 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 			recoilE = 5.0;
 		}
 		
-		//Sample phi_K
-		phi_K = genPhiK(Q2, W2, std::cos(theta_K), epsilon, beamPol);
+		//Sample K angles
+		K_angles = genPhiK(Q2, W2, epsilon, beamPol);
+		theta_K = K_angles[0];
+		phi_K = K_angles[1];
 		
 		//------------------------------------------Set 4-vectors and boost to lab frame------------------------------------------
 		
@@ -311,7 +332,7 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 		}
 		debugInt_2++;
 		*/
-	//}while(vecPion_Lab.theta() > 0.06); //0.06 based on 1M sample of pol = -1 run through remoll
+	}while(vecPion_Lab.theta() > 0.06); //0.06 based on 1M sample of pol = -1 run through remoll
 
 
 	//------------------------------------------Generate Event------------------------------------------
@@ -360,7 +381,7 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 	G4AnalysisManager *man = G4AnalysisManager::Instance();
 	
 	man->FillNtupleDColumn(4, 0, gamma);  //rate
-	man->FillNtupleDColumn(4, 1, 1.0);  //A
+	man->FillNtupleDColumn(4, 1, theta_K);  //A
 	man->FillNtupleDColumn(4, 2, recoilE);  //Am
 	man->FillNtupleDColumn(4, 3, epsilon);  //xs
 	man->FillNtupleDColumn(4, 4, Q2);  //Q2
