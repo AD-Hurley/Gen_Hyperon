@@ -49,7 +49,7 @@ int main(int argc, char** argv)
 	*/
 	
 	//Batch mode
-	int numberOfEvent = 1000000;
+	int numberOfEvent = 100000;
 	runManager->BeamOn(numberOfEvent);
 	delete runManager;
 	

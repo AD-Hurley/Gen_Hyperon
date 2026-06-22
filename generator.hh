@@ -25,7 +25,7 @@ public:
 	~MyPrimaryGenerator();
 
 	virtual void GeneratePrimaries(G4Event*);
-	virtual G4double genPhiK(G4double Q2, G4double W2, G4double cosThetaK, G4double epsilon, G4double beamPol);
+	virtual std::array<G4double,2> genPhiK(G4double Q2, G4double W2, G4double epsilon, G4double beamPol);
 	virtual G4double genThetaP(G4double beamPol);
 	
 	G4double beamE = 11.0;
