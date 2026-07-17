@@ -22,6 +22,7 @@ std::array<G4double,2> MyPrimaryGenerator::genPhiK(G4double Q2, G4double W2, G4d
 	//------------------------------------------------------------------------------------
 	//This function samples CM frame phi_K based on the angular cross-section data 
 	//------------------------------------------------------------------------------------
+	CLHEP::HepRandom::setTheSeed((unsigned)clock());
 	
 	G4double sig_U, sig_LT, sig_TT, sig_LTp;
 	G4double thetaK, cosThetaK; 
@@ -115,42 +116,46 @@ std::array<G4double,2> MyPrimaryGenerator::genPhiK(G4double Q2, G4double W2, G4d
 
 G4double MyPrimaryGenerator::genThetaP(G4double beamPol)
 {
-
+	CLHEP::HepRandom::setTheSeed((unsigned)clock());
 	//------------------------------------------------------------------------------------
 	// This function samples the theta_p of the proton in the hyperon rest frame
 	//------------------------------------------------------------------------------------
 
-	G4double helPol = -0.5*beamPol;
+	G4double helPol = 0.1*beamPol;
 	G4double helAlpha = 0.75;
 	G4double helTheta;
+	G4double cosHelTheta;
 	G4double randAcceptor;
 	bool isAcceptableTheta = false;
 	
+	/*
 	if (testFlatDist == true){
 		helTheta = G4UniformRand()*CLHEP::pi;
 	}
 	else if (testNoAngDist == true){
 		helTheta = 0;
 	}
-	else{
+	else{*/
 		while(!isAcceptableTheta)
 		{
-			randAcceptor = G4UniformRand()*2;
+			randAcceptor = G4UniformRand()*3.0;
 			helTheta = G4UniformRand()*CLHEP::pi;
+			cosHelTheta = G4UniformRand()*2 - 1; 
 			
-			//G4cout << "Throwing ThetaP: " << randAcceptor - (1-helAlpha*helPol*std::cos(helTheta)) << G4endl;
+			//G4cout << helTheta << G4endl;
 			
-			if(randAcceptor < (1-helAlpha*helPol*std::cos(helTheta)))
+			//G4cout << "Throwing ThetaP: " << (1-helAlpha*helPol*std::cos(helTheta)) << G4endl;
+			
+			//if(randAcceptor < (1.0 - helAlpha*helPol*std::cos(helTheta)))
+			if(randAcceptor < (1.0 - helAlpha*helPol*cosHelTheta))
 			{
-				//G4cout << "found a good ThetaP" << G4endl; 
+				//G4cout << "found a good ThetaP: " << std::cos(helTheta) << G4endl; 
 				isAcceptableTheta = true;
 			}
 		}
-	}
-	
-	
-	
-	return helTheta;
+	//}
+	//helTheta = G4UniformRand()*CLHEP::pi;
+	return std::acos(cosHelTheta);
 }
 
 void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
@@ -181,7 +186,7 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 	beamPol = -1.0;
 	
 	//Limit Phasespace for efficiency loop
-	do{
+	//do{
 			
 		//Throw angular distributions (except phi_K and theta_e)
 		//theta_e = G4UniformRand()*CLHEP::pi;
@@ -261,11 +266,15 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 		//------------------------------------------Set 4-vectors and boost to lab frame------------------------------------------
 		
 		//Set Hyperon Helicity frame 4-vectors
+		
+		
 		vecRecoilProton_Hel.setRThetaPhi(hel_Momentum,theta_p,phi_p);
 		vecRecoilProton_Hel.setE(proton_helE);
 		
 		vecPion_Hel.setVect(-1.0*vecRecoilProton_Hel.vect());
 		vecPion_Hel.setE(pion_helE);
+		
+		//G4cout << vecPion_Hel.rho() << G4endl;
 		
 		//Set CM Frame 4-vectors
 		G4double CM_Momentum = std::sqrt(std::pow(W2 + std::pow(kaon_mass,2) - std::pow(hyperon_mass,2),2) - 4*W2*std::pow(kaon_mass,2))/(2*std::sqrt(W2));
@@ -332,7 +341,7 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 		}
 		debugInt_2++;
 		*/
-	}while(vecPion_Lab.theta() > 0.06); //0.06 based on 1M sample of pol = -1 run through remoll
+	//}while(vecPion_Lab.theta() > 0.06); //0.06 based on 1M sample of pol = -1 run through remoll
 
 
 	//------------------------------------------Generate Event------------------------------------------
@@ -380,12 +389,12 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 	
 	G4AnalysisManager *man = G4AnalysisManager::Instance();
 	
-	man->FillNtupleDColumn(4, 0, gamma);  //rate
-	man->FillNtupleDColumn(4, 1, theta_K);  //A
-	man->FillNtupleDColumn(4, 2, recoilE);  //Am
-	man->FillNtupleDColumn(4, 3, epsilon);  //xs
-	man->FillNtupleDColumn(4, 4, Q2);  //Q2
-	man->FillNtupleDColumn(4, 5, W2);  //W2
+	man->FillNtupleDColumn(4, 0, vecPion_CM.cosTheta());  //rate
+	man->FillNtupleDColumn(4, 1, vecPion_CM.rho());  //A
+	man->FillNtupleDColumn(4, 2, vecPion_Lab.cosTheta());  //Am
+	man->FillNtupleDColumn(4, 3, vecPion_Lab.rho());  //xs
+	man->FillNtupleDColumn(4, 4, vecPion_Hel.cosTheta());  //Q2
+	man->FillNtupleDColumn(4, 5, vecPion_Hel.rho());  //W2
 	man->FillNtupleDColumn(4, 6, vecPion_Lab.theta());  //thcom
 	man->FillNtupleDColumn(4, 7, beamE);  //beamp
 	man->AddNtupleRow(4);
