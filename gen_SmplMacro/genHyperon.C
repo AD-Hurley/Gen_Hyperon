@@ -48,22 +48,33 @@ Double_t genThetaK(Double_t W2){
 	
 	Double_t proton_mass = 0.938; //To-Do: move to header
 	Double_t Egamma = (W2 - std::pow(proton_mass,2))/(2*proton_mass);
+	if(Egamma > 2.8){Egamma = 2.8;}
+	
 	
 	Double_t par[5];
 	
-	if (Egamma < 1.135){
-		par[0] = 0.56;
-		par[1] = -1.8 + 2.1*Egamma;
-		par[2] = 0;
-		par[3] = 0;
-		par[4] = 0;
+	if(HypName == "lambda"){
+		if(Egamma < 1.135){
+			par[0] = 0.56;
+			par[1] = -1.8 + 2.1*Egamma;
+			par[2] = 0;
+			par[3] = 0;
+			par[4] = 0;
+		}
+		else{
+			par[0] = ((Egamma < 1.435)?1:0)*0.5315 + ((Egamma >= 1.435)?1:0)*(exp(2.433 - 2.243*Egamma));
+			par[1] = ((Egamma < 1.9)?1:0)*(-0.7623 + 1.66*Egamma - 0.4914*Egamma*Egamma) + ((Egamma >=1.9)?1:0)*(exp(7.054-3.948*Egamma));
+			par[2] = ((Egamma < 2.1)?1:0*(-3.581 + 4.489*Egamma - 1.137*Egamma*Egamma) + ((Egamma >= 2.1)?1:0)*exp(5.742 - 2.819*Egamma);
+			par[3] = ((Egamma < 1.78)?1:0)*(2.582 - 3.366*Egamma + 0.9209*Egamma*Egamma) + ((Egamma >= 1.78)?1:0)*(0.778)*(1-exp(5.58 - 2.871*Egamma));
+			par[4] = ((Egamma < 2.09)?1:0)*(0.8472 - 1.1185*Egamma + 0.299*Egamma*Egamma) + ((Egamma >= 2.09)?1:0)*(0.9943)*(exp(4.945 - 2.28*Egamma));
+		}
 	}
-	else{
-		par[0] = ((Egamma < 1.435)?1:0)*0.5315 + ((Egamma >= 1.435)?1:0)*(exp(2.433 - 2.243*Egamma));
-		par[1] = ((Egamma < 1.9)?1:0)*(-0.7623 + 1.66*Egamma - 0.4914*Egamma*Egamma) + ((Egamma >=1.9)?1:0)*(exp(7.054-3.948*Egamma));
-		par[2] = ((Egamma < 2.1)?1:0*(-3.581 + 4.489*Egamma - 1.137*Egamma*Egamma) + ((Egamma >= 2.1)?1:0)*exp(5.742 - 2.819*Egamma);
-		par[3] = ((Egamma < 1.78)?1:0)*(2.582 - 3.366*Egamma + 0.9209*Egamma*Egamma) + ((Egamma >= 1.78)?1:0)*(0.778)*(1-exp(5.58 - 2.871*Egamma));
-		par[4] = ((Egamma < 2.09)?1:0)*(0.8472 - 1.1185*Egamma + 0.299*Egamma*Egamma) + ((Egamma >= 2.09)?1:0)*(0.9943)*(exp(4.945 - 2.28*Egamma));
+	if(HypName == "sigma"){
+		par[0] = -14.54 + 32.59*Egamma - 24.51*Power(Egamma,2)  + 7.726*Power(Egamma,3) - 0.881*Power(Egamma,4);
+		par[1] = -1.99 - 0.2793*Egamma + 4.54*Power(Egamma,2)  - 2.765*Power(Egamma,3) + 0.454*Power(Egamma,4);
+		par[2] = ((Egamma < 1.6)?1:0)*(28.94 - 40.18*Egamma + 13.34*Power(Egamma,2)) + ((Egamma >= 1.6)?1:0)*(-41.3 + 48.66*Egamma - 18.35*Power(Egamma,2) + 2.248*Power(Egamma,3));
+		par[3] = -0.4313 + 6.246*Egamma - 9.422*Power(Egamma,2)  + 4.493*Power(Egamma,3) - 0.6512*Power(Egamma,4);
+		par[4] = -99.51 + 202*Egamma - 147.2*Power(Egamma,2)  + 45.92*Power(Egamma,3) - 5.203*Power(Egamma,4);
 	}
 	
 	TF1 *fThetaK = new TF1("fThetaK","[0] + [1]*cos(x) + [2]*Power(cos(x),2) + [3]*Power(cos(x),3) + [4]*Power(cos(x),4)",-1,1,5);
