@@ -42,6 +42,42 @@ Double_t genThetaP(Double_t beamPol){
 	return TMath::Pi()*r.Rndm();
 }
 
+Double_t genThetaK(Double_t W2){
+	//TRandom3 r;
+	//return TMath::Pi()*r.Rndm();
+	
+	Double_t proton_mass = 0.938; //To-Do: move to header
+	Double_t Egamma = (W2 - std::pow(proton_mass,2))/(2*proton_mass);
+	
+	Double_t par[5];
+	
+	if (Egamma < 1.135){
+		par[0] = 0.56;
+		par[1] = -1.8 + 2.1*Egamma;
+		par[2] = 0;
+		par[3] = 0;
+		par[4] = 0;
+	}
+	else{
+		par[0] = ((Egamma < 1.435)?1:0)*0.5315 + ((Egamma >= 1.435)?1:0)*(exp(2.433 - 2.243*Egamma));
+		par[1] = ((Egamma < 1.9)?1:0)*(-0.7623 + 1.66*Egamma - 0.4914*Egamma*Egamma) + ((Egamma >=1.9)?1:0)*(exp(7.054-3.948*Egamma));
+		par[2] = ((Egamma < 2.1)?1:0*(-3.581 + 4.489*Egamma - 1.137*Egamma*Egamma) + ((Egamma >= 2.1)?1:0)*exp(5.742 - 2.819*Egamma);
+		par[3] = ((Egamma < 1.78)?1:0)*(2.582 - 3.366*Egamma + 0.9209*Egamma*Egamma) + ((Egamma >= 1.78)?1:0)*(0.778)*(1-exp(5.58 - 2.871*Egamma));
+		par[4] = ((Egamma < 2.09)?1:0)*(0.8472 - 1.1185*Egamma + 0.299*Egamma*Egamma) + ((Egamma >= 2.09)?1:0)*(0.9943)*(exp(4.945 - 2.28*Egamma));
+	}
+	
+	TF1 *fThetaK = new TF1("fThetaK","[0] + [1]*cos(x) + [2]*Power(cos(x),2) + [3]*Power(cos(x),3) + [4]*Power(cos(x),4)",-1,1,5);
+	
+	fThetaK->SetParameter(0,par[0]);
+	fThetaK->SetParameter(1,par[1]);
+	fThetaK->SetParameter(2,par[2]);
+	fThetaK->SetParameter(3,par[3]);
+	fThetaK->SetParameter(4,par[4]);
+	
+	Double_t ThetaK = fThetaK->GetRandom();
+	return ThetaK;
+}
+
 void genHyperon(){
 
 	//--------------------------------------Generator options----------------------------------
@@ -168,7 +204,7 @@ void genHyperon(){
 			
 			//boost Helicity 4-vectors to CM and set other CM 4-vectors
 			phi_K = 2*TMath::Pi()*(r.Rndm() - 0.5);
-			
+			theta_K = genThetaK(W2);
 			
 			//boost CM 4-vectors to Lab and set other 4-vectors
 			
